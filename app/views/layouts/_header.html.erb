@@ -11,7 +11,13 @@
           <li><%= link_to 'About', static_pages_about_path %></li>
           <li><%= link_to 'My Profile', '#' %></li>
           <li><%= link_to 'My Account', '#' %></li>
-          <li><%= link_to 'Logout', '#' %></li>
+          <li>
+		    <% if signed_in? %>
+			  <%= link_to 'Logout', :method => :delete, root_path %>
+			<% else %>
+		      <%= link_to 'Login', new_session_path %>
+			<% end %>
+		  </li>
         </ul>
 
       </div><!--/.nav-collapse -->
