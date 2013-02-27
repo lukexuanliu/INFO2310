@@ -1,6 +1,8 @@
 class MicroPostsController < ApplicationController
   # GET /micro_posts
   # GET /micro_posts.json
+  before_filter :redirect_unless_authorized, only: [:edit, :update, :destroy]
+  
   def index
     @micro_posts = MicroPost.all
 
@@ -34,7 +36,6 @@ class MicroPostsController < ApplicationController
 
   # GET /micro_posts/1/edit
   def edit
-    @micro_post = MicroPost.find(params[:id])
   end
 
   # POST /micro_posts
@@ -56,8 +57,6 @@ class MicroPostsController < ApplicationController
   # PUT /micro_posts/1
   # PUT /micro_posts/1.json
   def update
-    @micro_post = MicroPost.find(params[:id])
-
     respond_to do |format|
       if @micro_post.update_attributes(params[:micro_post])
         format.html { redirect_to @micro_post, notice: 'Micro post was successfully updated.' }
@@ -72,7 +71,6 @@ class MicroPostsController < ApplicationController
   # DELETE /micro_posts/1
   # DELETE /micro_posts/1.json
   def destroy
-    @micro_post = MicroPost.find(params[:id])
     @micro_post.destroy
 
     respond_to do |format|
@@ -80,4 +78,14 @@ class MicroPostsController < ApplicationController
       format.json { head :no_content }
     end
   end
+  
+  private 
+    def redirect_unless_authorized
+      @micro_post = MicroPost.find(params[:id])
+	  # current_user is a function in session_helper.rb which returns an instance var
+	  unless signed_in? && current_user == @micro_post.user
+	    flash[:error] = "You are not authorized to edit that MicroPost"
+		redirect_to root_path
+	  end
+    end  
 end
