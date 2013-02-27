@@ -1,6 +1,7 @@
 class User < ActiveRecord::Base
   attr_accessor :password
-  attr_accessible :email, :name, :password
+  attr_accessible :email, :name, :password, :avatar
+has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/assets/:style/missing.png"
   
   validates :password, presence: true, if: "hashed_password.blank?"
   
@@ -25,17 +26,12 @@ class User < ActiveRecord::Base
     Digest::SHA256.hexdigest("--#{salt}--#{raw_password}--")
   end
   
-  # If there is a user in the database with the given email, and 
-  # the password matches theirs, returns the user.
-  # Otherwise, returns nil
+  def has_password?(raw_password)
+    hashed_password == encrypt(raw_password)
+  end
+
   def self.authenticate(email, plain_text_password)
-    #match email with self.email
-	#  if not found, return nil
-	user = self.find_by_email(email)
-	return nil unless user
-	
-	#hash plain_text_password using its salt
-	#  match the result with self.hashed_password
-	(user.encrypt(plain_text_password) == user.hashed_password) ? user : nil
+    user = User.find_by_email(email)
+    (user && user.has_password?(plain_text_password)) ? user : nil
   end
 end
