@@ -6,7 +6,7 @@ class UsersController < ApplicationController
   before_filter :redirect_unless_authorized, only: [:edit, :update, :destroy]
   
   def index
-    @users = User.all
+    @users = User.paginate(page:params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
@@ -18,6 +18,8 @@ class UsersController < ApplicationController
   # GET /users/1.json
   def show
     @user = User.find(params[:id])
+
+	@micro_posts = @user.micro_posts.paginate(page: params[:page], per_page: 10)
 
     respond_to do |format|
       format.html # show.html.erb
