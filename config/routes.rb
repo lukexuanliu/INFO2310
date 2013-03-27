@@ -6,10 +6,14 @@ Info2310::Application.routes.draw do
   resources :users
   resources :sessions, only: [:new, :create, :destroy] #login
   resources :relationships, only: [:create, :destroy]
-
+  
   get "static_pages/home"
   get "static_pages/help"
   get "static_pages/about"
+  
+  get "/micro_posts/refresh" # ORDER IMPORTANT
+  resources :micro_posts # ORDER IMPORTANT
+  
   
   root to: 'static_pages#home'
 

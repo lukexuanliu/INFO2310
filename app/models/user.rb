@@ -38,8 +38,14 @@ class User < ActiveRecord::Base
     (user && user.has_password?(plain_text_password)) ? user : nil
   end
   
+  # Update our feed function so that it returns all of the MicroPosts
+  # that were created by this user OR users this user is following,
+  # ordered by created_at descending.
   def feed(paginate_options={page: 1})
-    micro_posts.paginate(paginate_options)
+	followed_user_ids = followed_users.map { |u| u.id}
+	MicroPost.where('user_id = ? or user_id in (?)', id, followed_user_ids)
+	         .order('created_at DESC')
+			 .paginate(paginate_options)
   end
   
   # Returns the Relationship object this user has with other_user
